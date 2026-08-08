@@ -309,7 +309,7 @@
       <div class="card span2">
         <div class="card-head"><h3>Nilai per Mapel — Siswa Terpilih</h3><span class="card-note" id="studentMapelNote"></span></div>
         <div class="chart-wrap"><canvas id="chartStudentMapel"></canvas></div>
-        <div class="kkm-note" style="color:var(--text-muted)">Batang merah = di bawah rata-rata</div>
+        <div class="kkm-note" style="color:var(--text-muted)">Batang merah = di bawah rata-rata kelas</div>
       </div>
 
       <div class="card span2">
@@ -357,19 +357,19 @@
    1. DATA
 ========================================================= */
 const STUDENTS = [
-{no:1,nama:"ARIF",MTK:98,BING:65,BIND:96,IPA:88,IPS:75,jumlah:422,rata:84.4,status:"Lulus",predikat:"B",ranking:8},
+{no:1,nama:"ARIF",MTK:98,BING:66,BIND:96,IPA:88,IPS:75,jumlah:423,rata:84.6,status:"Lulus",predikat:"B",ranking:8},
 {no:2,nama:"BELLA",MTK:71,BING:81,BIND:67,IPA:70,IPS:80,jumlah:369,rata:73.8,status:"Remedial",predikat:"C",ranking:18},
 {no:3,nama:"CAHYO",MTK:78,BING:80,BIND:87,IPA:65,IPS:72,jumlah:382,rata:76.4,status:"Remedial",predikat:"C",ranking:17},
 {no:4,nama:"DINA",MTK:89,BING:94,BIND:87,IPA:90,IPS:85,jumlah:445,rata:89.0,status:"Lulus",predikat:"B",ranking:3},
-{no:5,nama:"ERIK",MTK:85,BING:77,BIND:100,IPA:82,IPS:78,jumlah:422,rata:84.4,status:"Lulus",predikat:"B",ranking:8},
+{no:5,nama:"ERIK",MTK:85,BING:77,BIND:100,IPA:82,IPS:78,jumlah:422,rata:84.4,status:"Lulus",predikat:"B",ranking:9},
 {no:6,nama:"FITRI",MTK:98,BING:67,BIND:100,IPA:95,IPS:90,jumlah:450,rata:90.0,status:"Lulus",predikat:"A",ranking:1},
 {no:7,nama:"GALIH",MTK:68,BING:66,BIND:99,IPA:60,IPS:65,jumlah:358,rata:71.6,status:"Remedial",predikat:"C",ranking:19},
 {no:8,nama:"HANA",MTK:66,BING:93,BIND:74,IPA:78,IPS:82,jumlah:393,rata:78.6,status:"Lulus",predikat:"C",ranking:15},
-{no:9,nama:"ILHAM",MTK:89,BING:89,BIND:84,IPA:85,IPS:80,jumlah:427,rata:85.4,status:"Lulus",predikat:"B",ranking:6},
+{no:9,nama:"ILHAM",MTK:89,BING:89,BIND:84,IPA:85,IPS:81,jumlah:428,rata:85.6,status:"Lulus",predikat:"B",ranking:6},
 {no:10,nama:"JESSICA",MTK:82,BING:94,BIND:83,IPA:88,IPS:92,jumlah:439,rata:87.8,status:"Lulus",predikat:"B",ranking:4},
 {no:11,nama:"KEVIN",MTK:69,BING:66,BIND:74,IPA:62,IPS:70,jumlah:341,rata:68.2,status:"Remedial",predikat:"D",ranking:20},
 {no:12,nama:"LINA",MTK:89,BING:97,BIND:81,IPA:91,IPS:88,jumlah:446,rata:89.2,status:"Lulus",predikat:"B",ranking:2},
-{no:13,nama:"MIFTAH",MTK:89,BING:78,BIND:96,IPA:84,IPS:80,jumlah:427,rata:85.4,status:"Lulus",predikat:"B",ranking:6},
+{no:13,nama:"MIFTAH",MTK:89,BING:78,BIND:96,IPA:84,IPS:80,jumlah:427,rata:85.4,status:"Lulus",predikat:"B",ranking:7},
 {no:14,nama:"NADIA",MTK:79,BING:91,BIND:85,IPA:80,IPS:86,jumlah:421,rata:84.2,status:"Lulus",predikat:"B",ranking:10},
 {no:15,nama:"OKKY",MTK:71,BING:96,BIND:72,IPA:75,IPS:70,jumlah:384,rata:76.8,status:"Remedial",predikat:"C",ranking:16},
 {no:16,nama:"PUTRA",MTK:75,BING:72,BIND:96,IPA:78,IPS:80,jumlah:401,rata:80.2,status:"Lulus",predikat:"B",ranking:14},
