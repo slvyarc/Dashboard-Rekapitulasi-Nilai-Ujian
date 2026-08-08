@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Rekapitulasi Nilai — Kelas 6A SDN X Balendah</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root{
+    --navy:#152238;
+    --navy-light:#233757;
+    --navy-lighter:#334876;
+    --bg:#eef1f7;
+    --card:#ffffff;
+    --border:#e3e8f1;
+    --text:#152238;
+    --text-muted:#67748e;
+    --teal:#0d9488;
+    --teal-deep:#0b7c72;
+    --teal-light:#ccfbf1;
+    --amber:#d97706;
+    --amber-light:#fef3c7;
+    --red:#dc2626;
+    --red-light:#fee2e2;
+    --gold:#c9971f;
+    --silver:#94a0b3;
+    --bronze:#b1662f;
+    --predikat-a:#166534;
+    --predikat-b:#0d9488;
+    --predikat-c:#d97706;
+    --predikat-d:#dc2626;
+    --radius:10px;
+    --font-display:'Sora', 'Inter', sans-serif;
+    --font-body:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono:'JetBrains Mono', ui-monospace, monospace;
+    --shadow: 0 1px 2px rgba(21,34,56,0.05), 0 4px 14px rgba(21,34,56,0.05);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{
+    font-family:var(--font-body);
+    background:var(--bg);
+    color:var(--text);
+    font-size:13px;
+    line-height:1.45;
+    overflow:hidden;
+  }
+
+  .app-shell{display:flex;height:100vh;width:100%;}
+
+  /* ===== SIDEBAR ===== */
+  .sidebar{
+    width:252px;
+    flex:0 0 252px;
+    background:linear-gradient(190deg, var(--navy) 0%, var(--navy-light) 100%);
+    color:#fff;
+    display:flex;
+    flex-direction:column;
+    padding:20px 16px;
+    gap:18px;
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+  }
+  .sidebar::-webkit-scrollbar{width:5px;}
+  .sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:4px;}
+
+  .sidebar-header{display:flex;gap:10px;align-items:flex-start;}
+  .sidebar-header .badge{
+    width:34px;height:34px;border-radius:9px;background:rgba(13,148,136,0.22);
+    border:1px solid rgba(13,148,136,0.45);display:flex;align-items:center;justify-content:center;
+    font-size:16px;flex:0 0 auto;
+  }
+  .sidebar-header h1{font-family:var(--font-display);font-size:14.5px;margin:0 0 3px 0;font-weight:700;line-height:1.3;letter-spacing:-0.01em;}
+  .sidebar-header p{font-size:10.5px;color:#a9b7d6;margin:0;}
+
+  .side-label{
+    font-size:9.5px;text-transform:uppercase;letter-spacing:0.07em;
+    color:#8ea0c7;font-weight:700;margin:0 0 6px 1px;
+  }
+  .side-filter{position:relative;}
+  .side-filter input[type="text"]{
+    font-family:inherit;font-size:12px;padding:9px 10px;border-radius:8px;
+    border:1px solid #37456b;background:#1c2c4b;color:#fff;outline:none;width:100%;
+  }
+  .side-filter input::placeholder{color:#7c8db3;}
+  .side-filter input:focus{border-color:var(--teal);}
+  .autocomplete-list{
+    position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--border);
+    border-radius:8px;box-shadow:0 10px 26px rgba(21,34,56,0.28);max-height:190px;overflow-y:auto;
+    z-index:200;display:none;margin-top:4px;
+  }
+  .autocomplete-list.show{display:block;}
+  .autocomplete-item{padding:7px 10px;cursor:pointer;font-size:11.5px;color:var(--text);display:flex;justify-content:space-between;}
+  .autocomplete-item:hover{background:var(--bg);}
+  .autocomplete-item .ac-rank{color:var(--text-muted);font-size:10px;font-family:var(--font-mono);}
+
+  .filter-actions{display:flex;gap:6px;margin-top:8px;align-items:center;}
+  .reset-btn{
+    padding:6px 10px;border-radius:7px;border:1px solid #4d5c85;background:transparent;
+    color:#dbe3f3;font-weight:600;font-size:10.5px;cursor:pointer;
+  }
+  .reset-btn:hover{background:rgba(255,255,255,0.08);}
+  .active-filter-tag{font-size:10.5px;color:#5eead4;font-weight:700;}
+
+  .side-section{display:flex;flex-direction:column;gap:8px;}
+  .side-section h2{font-size:11px;color:#fff;margin:0;font-weight:700;display:flex;align-items:center;gap:6px;}
+
+  .insight-card{
+    background:rgba(255,255,255,0.06);border-radius:8px;padding:8px 10px;
+    display:flex;gap:7px;align-items:flex-start;border-left:3px solid var(--teal);
+  }
+  .insight-card.warn{border-left-color:var(--amber);}
+  .insight-card.crit{border-left-color:var(--red);}
+  .insight-card.info{border-left-color:#7c9cd6;}
+  .insight-icon{font-size:12.5px;line-height:1;margin-top:1px;}
+  .insight-text{font-size:10.8px;color:#dbe3f3;line-height:1.45;}
+  .insight-text b{color:#fff;}
+
+  .toggle-insights{
+    font-size:10.5px;color:#5eead4;background:none;border:none;cursor:pointer;
+    text-align:left;padding:2px 2px;font-weight:700;
+  }
+  .toggle-insights:hover{text-decoration:underline;}
+
+
+  .sidebar-footer{font-size:9.5px;color:#7c8db3;line-height:1.6;margin-top:auto;padding-top:6px;border-top:1px dashed rgba(255,255,255,0.12);}
+
+  /* ===== MAIN CONTENT ===== */
+  .main-content{
+    flex:1;display:flex;flex-direction:column;
+    padding:16px 22px 14px;gap:10px;min-width:0;max-width:1600px;
+    height:100vh;overflow-y:auto;overflow-x:hidden;
+  }
+  .main-topbar{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:8px;flex:0 0 auto;}
+  .main-topbar h2{font-family:var(--font-display);font-size:19px;margin:0;color:var(--navy);font-weight:700;letter-spacing:-0.01em;}
+  .main-topbar .topbar-sub{font-size:11.5px;color:var(--text-muted);margin-top:2px;}
+  .topbar-meta{font-size:10.5px;color:var(--text-muted);text-align:right;}
+
+  /* ===== KPI ===== */
+  .kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;flex:0 0 auto;}
+  .kpi-card{background:var(--card);border-radius:var(--radius);padding:9px 12px;box-shadow:var(--shadow);border-top:3px solid var(--teal);display:flex;flex-direction:column;gap:2px;}
+  .kpi-card.status-warn{border-top-color:var(--amber);}
+  .kpi-card.status-crit{border-top-color:var(--red);}
+  .kpi-card .kpi-label{font-size:9px;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);font-weight:700;}
+  .kpi-card .kpi-value{font-family:var(--font-display);font-size:19px;font-weight:700;color:var(--navy);letter-spacing:-0.02em;line-height:1.15;}
+  .kpi-card .kpi-sub{font-size:9.5px;color:var(--text-muted);}
+  .kpi-progress{margin-top:4px;height:6px;border-radius:4px;background:#eef1f6;overflow:hidden;}
+  .kpi-progress-fill{height:100%;background:linear-gradient(90deg, var(--teal-deep), var(--teal));border-radius:4px;}
+
+  /* ===== GRID ===== */
+  .charts-grid{
+    display:grid;grid-template-columns:repeat(6,1fr);
+    grid-template-rows:minmax(215px,1fr) minmax(215px,1fr) minmax(230px,1.1fr);
+    gap:10px;flex:1;min-height:0;
+  }
+  .span2{grid-column:span 2;}
+  .span3{grid-column:span 3;}
+  .span6{grid-column:span 6;}
+
+  .card{
+    background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    border:1px solid var(--border);padding:11px 13px 10px;display:flex;flex-direction:column;
+    min-height:0;height:100%;overflow:hidden;
+  }
+  .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;gap:8px;flex:0 0 auto;}
+  .card h3{font-size:11.5px;margin:0;color:var(--navy);font-weight:700;}
+  .card .card-note{font-size:9.5px;color:var(--text-muted);}
+  .kkm-note{font-size:9px;color:var(--amber);font-weight:700;flex:0 0 auto;text-align:center;margin-top:2px;}
+  .kkm-note b{font-family:var(--font-mono);}
+  .chart-wrap{position:relative;width:100%;flex:1;min-height:0;}
+
+  select.sort-select{
+    font-family:var(--font-body);font-size:10px;padding:4px 7px;border-radius:6px;
+    border:1px solid var(--border);background:#f8fafc;color:var(--navy);font-weight:600;cursor:pointer;
+  }
+
+  .empty-state{
+    display:flex;align-items:center;justify-content:center;height:100%;
+    color:var(--text-muted);font-size:10.5px;text-align:center;flex-direction:column;gap:4px;
+  }
+  .empty-state .icon{font-size:20px;}
+
+  .radar-caption{font-size:10px;color:var(--text-muted);text-align:center;margin-top:2px;}
+  .radar-caption b{color:var(--navy);}
+
+  /* ===== HEATMAP ===== */
+  .heatmap-scroll{overflow:auto;flex:1;min-height:0;border-radius:6px;}
+  table.heatmap{border-collapse:collapse;width:100%;font-size:10.5px;min-width:520px;}
+  table.heatmap th{
+    text-align:center;padding:6px 6px;color:var(--text-muted);font-weight:700;font-size:9px;
+    text-transform:uppercase;letter-spacing:0.02em;border-bottom:2px solid var(--border);
+    position:sticky;top:0;background:#fff;
+  }
+  table.heatmap th.name-col, table.heatmap td.name-col{text-align:left;}
+  table.heatmap td{text-align:center;padding:5px 6px;font-weight:700;font-family:var(--font-mono);border-bottom:1px solid #f0f2f6;}
+  table.heatmap td.name-col{font-weight:600;font-family:var(--font-body);color:var(--navy);white-space:nowrap;}
+  table.heatmap tr.dimmed{opacity:0.28;}
+  table.heatmap td.val-cell{border-radius:5px;color:#0b3b32;}
+  table.heatmap td.rata-col{color:var(--navy);}
+
+  .predikat-chip{display:inline-block;font-size:9px;font-family:var(--font-body);font-weight:700;padding:1px 6px;border-radius:20px;color:#fff;}
+
+  /* ===== RANKING ===== */
+  .ranking-legend{display:flex;gap:12px;font-size:9.5px;color:var(--text-muted);align-items:center;}
+  .ranking-legend span{display:flex;align-items:center;gap:4px;}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+
+  .toggle-rank-btn{
+    font-family:inherit;font-size:9.5px;font-weight:700;padding:4px 9px;border-radius:6px;
+    border:1px solid var(--border);background:#f8fafc;color:var(--navy);cursor:pointer;
+  }
+  .toggle-rank-btn:hover{background:var(--bg);}
+
+  .empty-mini{font-size:9.5px;color:var(--text-muted);text-align:center;padding:6px 0;}
+
+  /* ===== responsive: grid collapses on narrower screens ===== */
+  @media (max-width: 1150px){
+    .kpi-row{grid-template-columns:repeat(3,1fr);}
+    .charts-grid{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(6,minmax(210px,1fr));}
+    .span2,.span3,.span6{grid-column:span 2;}
+  }
+  @media (max-width: 760px){
+    .app-shell{flex-direction:column;height:auto;}
+    body{overflow:auto;}
+    .sidebar{width:100%;flex:0 0 auto;height:auto;position:relative;}
+    .main-content{height:auto;overflow:visible;padding:14px;}
+    .kpi-row{grid-template-columns:repeat(2,1fr);}
+    .charts-grid{grid-template-columns:1fr;grid-template-rows:none;}
+    .span2,.span3,.span6{grid-column:span 1;}
+    .chart-wrap{min-height:190px;flex:none;height:210px;}
+  }
+
+  /* On short viewports the 215/215/230px row floors won't shrink further (by design,
+     so charts never render squashed/corrupted) — the grid simply overflows and
+     main-content's own scroll (already set above) kicks in gracefully. No override needed here. */
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="badge">📘</div>
+      <div>
+        <h1>Rekap Nilai Ujian</h1>
+        <p>Kelas 6A · SDN X Balendah<br>Semester 1 · T.A. 2025/2026</p>
+      </div>
+    </div>
+
+    <div class="side-section">
+      <div class="side-label">Cari Siswa</div>
+      <div class="side-filter">
+        <input type="text" id="searchInput" placeholder="Ketik nama siswa..." autocomplete="off">
+        <div class="autocomplete-list" id="autocompleteList"></div>
+      </div>
+      <div class="filter-actions">
+        <button class="reset-btn" id="resetBtn">↺ Reset</button>
+        <span class="active-filter-tag" id="activeTag"></span>
+      </div>
+    </div>
+
+    <div class="side-section">
+      <h2>💡 Insight Otomatis</h2>
+      <div id="insightList" style="display:flex;flex-direction:column;gap:7px;"></div>
+      <button class="toggle-insights" id="toggleInsights">Lihat semua insight ›</button>
+    </div>
+
+    <div class="sidebar-footer">
+      20 siswa · 5 mata pelajaran · KKM 78<br>
+      Disusun untuk Kepala Sekolah &amp; Wali Kelas
+    </div>
+  </aside>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="main-content">
+    <div class="main-topbar">
+      <div>
+        <h2>Ringkasan Hasil Ujian</h2>
+        <div class="topbar-sub">Analisis performa kelas berdasarkan 5 mata pelajaran</div>
+      </div>
+    </div>
+
+    <div class="kpi-row" id="kpiRow"></div>
+
+    <div class="charts-grid">
+
+      <div class="card span2">
+        <div class="card-head"><h3>Rata-rata Kelas per Mata Pelajaran</h3><span class="card-note">seluruh kelas</span></div>
+        <div class="chart-wrap"><canvas id="chartMapelAvg"></canvas></div>
+        <div class="kkm-note">Garis putus-putus oranye = KKM <b>78</b></div>
+      </div>
+
+      <div class="card span2">
+        <div class="card-head"><h3>Persentase Siswa per Predikat</h3></div>
+        <div class="chart-wrap"><canvas id="chartPredikatPct"></canvas></div>
+      </div>
+
+      <div class="card span2">
+        <div class="card-head"><h3>Distribusi Nilai Kelas</h3></div>
+        <div class="chart-wrap"><canvas id="chartHistogram"></canvas></div>
+      </div>
+
+      <div class="card span2">
+        <div class="card-head"><h3>Nilai per Mapel — Siswa Terpilih</h3><span class="card-note" id="studentMapelNote"></span></div>
+        <div class="chart-wrap"><canvas id="chartStudentMapel"></canvas></div>
+        <div class="kkm-note" style="color:var(--text-muted)">Batang merah = di bawah rata-rata</div>
+      </div>
+
+      <div class="card span2">
+        <div class="card-head"><h3>Profil Kemampuan Siswa</h3><span class="card-note" id="radarNote"></span></div>
+        <div class="chart-wrap" id="radarWrap"><canvas id="chartRadar"></canvas></div>
+      </div>
+
+      <div class="card span2">
+        <div class="card-head"><h3>Korelasi Matematika vs B. Indonesia</h3></div>
+        <div class="chart-wrap"><canvas id="chartCorrelation"></canvas></div>
+      </div>
+
+      <div class="card span3">
+        <div class="card-head">
+          <h3>Peta Nilai Siswa × Mata Pelajaran</h3>
+          <select class="sort-select" id="heatmapSort">
+            <option value="nama">Urutkan: Nama (A-Z)</option>
+            <option value="ranking">Urutkan: Ranking</option>
+          </select>
+        </div>
+        <div class="heatmap-scroll"><table class="heatmap" id="heatmapTable"></table></div>
+      </div>
+
+      <div class="card span3">
+        <div class="card-head">
+          <h3 id="rankingTitle">Top 5 Siswa</h3>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="ranking-legend">
+              <span>🥇🥈🥉</span>
+              <span><span class="dot" style="background:var(--teal)"></span>Lulus</span>
+              <span><span class="dot" style="background:var(--red)"></span>Remedial</span>
+            </div>
+            <button class="toggle-rank-btn" id="toggleRankBtn">Lihat Semua (20)</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chartRankingAll"></canvas></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+/* =========================================================
+   1. DATA
+========================================================= */
+const STUDENTS = [
+{no:1,nama:"ARIF",MTK:98,BING:65,BIND:96,IPA:88,IPS:75,jumlah:422,rata:84.4,status:"Lulus",predikat:"B",ranking:8},
+{no:2,nama:"BELLA",MTK:71,BING:81,BIND:67,IPA:70,IPS:80,jumlah:369,rata:73.8,status:"Remedial",predikat:"C",ranking:18},
+{no:3,nama:"CAHYO",MTK:78,BING:80,BIND:87,IPA:65,IPS:72,jumlah:382,rata:76.4,status:"Remedial",predikat:"C",ranking:17},
+{no:4,nama:"DINA",MTK:89,BING:94,BIND:87,IPA:90,IPS:85,jumlah:445,rata:89.0,status:"Lulus",predikat:"B",ranking:3},
+{no:5,nama:"ERIK",MTK:85,BING:77,BIND:100,IPA:82,IPS:78,jumlah:422,rata:84.4,status:"Lulus",predikat:"B",ranking:8},
+{no:6,nama:"FITRI",MTK:98,BING:67,BIND:100,IPA:95,IPS:90,jumlah:450,rata:90.0,status:"Lulus",predikat:"A",ranking:1},
+{no:7,nama:"GALIH",MTK:68,BING:66,BIND:99,IPA:60,IPS:65,jumlah:358,rata:71.6,status:"Remedial",predikat:"C",ranking:19},
+{no:8,nama:"HANA",MTK:66,BING:93,BIND:74,IPA:78,IPS:82,jumlah:393,rata:78.6,status:"Lulus",predikat:"C",ranking:15},
+{no:9,nama:"ILHAM",MTK:89,BING:89,BIND:84,IPA:85,IPS:80,jumlah:427,rata:85.4,status:"Lulus",predikat:"B",ranking:6},
+{no:10,nama:"JESSICA",MTK:82,BING:94,BIND:83,IPA:88,IPS:92,jumlah:439,rata:87.8,status:"Lulus",predikat:"B",ranking:4},
+{no:11,nama:"KEVIN",MTK:69,BING:66,BIND:74,IPA:62,IPS:70,jumlah:341,rata:68.2,status:"Remedial",predikat:"D",ranking:20},
+{no:12,nama:"LINA",MTK:89,BING:97,BIND:81,IPA:91,IPS:88,jumlah:446,rata:89.2,status:"Lulus",predikat:"B",ranking:2},
+{no:13,nama:"MIFTAH",MTK:89,BING:78,BIND:96,IPA:84,IPS:80,jumlah:427,rata:85.4,status:"Lulus",predikat:"B",ranking:6},
+{no:14,nama:"NADIA",MTK:79,BING:91,BIND:85,IPA:80,IPS:86,jumlah:421,rata:84.2,status:"Lulus",predikat:"B",ranking:10},
+{no:15,nama:"OKKY",MTK:71,BING:96,BIND:72,IPA:75,IPS:70,jumlah:384,rata:76.8,status:"Remedial",predikat:"C",ranking:16},
+{no:16,nama:"PUTRA",MTK:75,BING:72,BIND:96,IPA:78,IPS:80,jumlah:401,rata:80.2,status:"Lulus",predikat:"B",ranking:14},
+{no:17,nama:"QONITA",MTK:80,BING:88,BIND:81,IPA:83,IPS:85,jumlah:417,rata:83.4,status:"Lulus",predikat:"B",ranking:11},
+{no:18,nama:"RAFI",MTK:76,BING:85,BIND:89,IPA:79,IPS:82,jumlah:411,rata:82.2,status:"Lulus",predikat:"B",ranking:12},
+{no:19,nama:"SASKIA",MTK:86,BING:88,BIND:83,IPA:87,IPS:90,jumlah:434,rata:86.8,status:"Lulus",predikat:"B",ranking:5},
+{no:20,nama:"TOMMY",MTK:83,BING:67,BIND:98,IPA:80,IPS:75,jumlah:403,rata:80.6,status:"Lulus",predikat:"B",ranking:13}
+];
+
+const MAPEL = ["MTK","BING","BIND","IPA","IPS"];
+const MAPEL_LABEL = {MTK:"Matematika",BING:"B. Inggris",BIND:"B. Indonesia",IPA:"IPA",IPS:"IPS"};
+const KKM = 78;
+function mapelStats(){
+  const out={};
+  MAPEL.forEach(m=>{
+    const vals = STUDENTS.map(s=>s[m]);
+    out[m] = {avg: vals.reduce((a,b)=>a+b,0)/vals.length, max: Math.max(...vals), min: Math.min(...vals)};
+  });
+  return out;
+}
+const MAPEL_STATS = mapelStats();
+
+const COLOR = {
+  navy:"#152238", navyLight:"#334876",
+  teal:"#0d9488", tealSoft:"rgba(13,148,136,0.65)", tealLight:[204,251,241],
+  amber:"#d97706", red:"#dc2626",
+  gold:"#c9971f", silver:"#94a0b3", bronze:"#b1662f",
+  predikat:{A:"#166534", B:"#0d9488", C:"#d97706", D:"#dc2626"},
+  grid:"#eef1f6", muted:"#67748e"
+};
+
+Chart.defaults.font.family = "Inter, -apple-system, 'Segoe UI', sans-serif";
+Chart.defaults.font.size = 10;
+Chart.defaults.color = COLOR.muted;
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.animation.duration = 250;
+
+/* =========================================================
+   2. STATS HELPERS
+========================================================= */
+function computeStats(values){
+  const arr = values.slice().sort((a,b)=>a-b);
+  const n = arr.length;
+  const mean = arr.reduce((a,b)=>a+b,0)/n;
+  const median = n%2 ? arr[(n-1)/2] : (arr[n/2-1]+arr[n/2])/2;
+  const variance = arr.reduce((s,v)=>s+Math.pow(v-mean,2),0)/n;
+  return {mean, median, std: Math.sqrt(variance)};
+}
+const CLASS_STATS = computeStats(STUDENTS.map(s=>s.rata));
+
+/* =========================================================
+   3. STATE
+========================================================= */
+const DEFAULT_STUDENT = STUDENTS.find(s=>s.ranking===1);
+const state = { search:"", selectedStudent: DEFAULT_STUDENT, insightsExpanded:false, heatmapSort:"nama", showAllRanking:false };
+
+function getFiltered(){
+  if(!state.search) return STUDENTS.slice().sort((a,b)=>a.ranking-b.ranking);
+  return STUDENTS.filter(s=>s.nama.toLowerCase().includes(state.search.toLowerCase()))
+    .slice().sort((a,b)=>a.ranking-b.ranking);
+}
+
+/* =========================================================
+   4. KPI CARDS
+========================================================= */
+function renderKPI(){
+  const lulusCount = STUDENTS.filter(s=>s.status==="Lulus").length;
+  const remedialCount = STUDENTS.length - lulusCount;
+  const lulusPct = Math.round(lulusCount/STUDENTS.length*100);
+  const top = STUDENTS.find(s=>s.ranking===1);
+  const bottom = STUDENTS.find(s=>s.ranking===STUDENTS.length);
+
+  document.getElementById("kpiRow").innerHTML = `
+    <div class="kpi-card">
+      <div class="kpi-label">Rata-rata Kelas</div>
+      <div class="kpi-value">${CLASS_STATS.mean.toFixed(2)}</div>
+      <div class="kpi-sub">Median ${CLASS_STATS.median.toFixed(1)}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Standar Deviasi</div>
+      <div class="kpi-value">${CLASS_STATS.std.toFixed(1)}</div>
+      <div class="kpi-sub">Sebaran nilai kelas</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Tingkat Kelulusan</div>
+      <div class="kpi-value">${lulusPct}%</div>
+      <div class="kpi-progress"><div class="kpi-progress-fill" style="width:${lulusPct}%"></div></div>
+      <div class="kpi-sub">${lulusCount} / ${STUDENTS.length} siswa</div>
+    </div>
+    <div class="kpi-card status-warn">
+      <div class="kpi-label">Siswa Remedial</div>
+      <div class="kpi-value">${remedialCount}</div>
+      <div class="kpi-sub">${Math.round(remedialCount/STUDENTS.length*100)}% dari kelas</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Nilai Tertinggi</div>
+      <div class="kpi-value">${top.rata.toFixed(1)}</div>
+      <div class="kpi-sub">${top.nama} · Rank ${top.ranking}</div>
+    </div>
+    <div class="kpi-card status-crit">
+      <div class="kpi-label">Nilai Terendah</div>
+      <div class="kpi-value">${bottom.rata.toFixed(1)}</div>
+      <div class="kpi-sub">${bottom.nama} · Rank ${bottom.ranking}</div>
+    </div>`;
+}
+
+/* =========================================================
+   5. INSIGHTS
+========================================================= */
+function buildInsightList(){
+  const filtered = getFiltered();
+  const top = STUDENTS.find(s=>s.ranking===1);
+  const bottom = STUDENTS.find(s=>s.ranking===STUDENTS.length);
+  const lulusCount = STUDENTS.filter(s=>s.status==="Lulus").length;
+  const lulusPct = Math.round(lulusCount/STUDENTS.length*100);
+  const bCount = STUDENTS.filter(s=>s.predikat==="B").length;
+  const remedialByMapel = {};
+  MAPEL.forEach(m=>{ remedialByMapel[m] = STUDENTS.filter(s=>s[m]<70).length; });
+  const worstMapel = Object.entries(remedialByMapel).sort((a,b)=>b[1]-a[1])[0];
+  const bestMapel = Object.entries(MAPEL_STATS).sort((a,b)=>b[1].avg-a[1].avg)[0];
+  const lowestMapel = Object.entries(MAPEL_STATS).sort((a,b)=>a[1].avg-b[1].avg)[0];
+
+  /* Ordered by what a school leader would ask first: how many passed, who's
+     at the extremes, which subject is strong/weak, then supporting context. */
+  const insights = [
+    {icon:"🎯", type: lulusPct>=75?"info":"warn", text:`Tingkat kelulusan kelas <b>${lulusPct}%</b> — <b>${lulusCount} dari ${STUDENTS.length} siswa</b> lulus KKM, ${STUDENTS.length-lulusCount} perlu remedial.`},
+    {icon:"📊", type:"info", text:`${MAPEL_LABEL[bestMapel[0]]} memiliki rata-rata tertinggi (<b>${bestMapel[1].avg.toFixed(1)}</b>), sedangkan ${MAPEL_LABEL[lowestMapel[0]]} terendah (<b>${lowestMapel[1].avg.toFixed(1)}</b>).`},
+     {icon:"✅", type:"info", text:`<b>${bCount} siswa</b> predikat B — performa merata di kelas.`},
+    {icon:"📏", type:"info", text:`Standar deviasi <b>${CLASS_STATS.std.toFixed(1)}</b> — sebaran nilai relatif ${CLASS_STATS.std<8?"rapat":"lebar"}.`}
+  ];
+
+  if(state.selectedStudent && state.search){
+    const s = state.selectedStudent;
+    const diff = (s.rata - CLASS_STATS.mean).toFixed(1);
+    const dirText = diff >= 0 ? `<b>${Math.abs(diff)} poin di atas</b>` : `<b>${Math.abs(diff)} poin di bawah</b>`;
+    insights.unshift({icon:"🔎", type: s.status==="Lulus" ? "info":"crit", text:`<b>${s.nama}</b>: rata-rata <b>${s.rata.toFixed(1)}</b> (${dirText} kelas), predikat <b>${s.predikat}</b>, Rank <b>${s.ranking}</b>.`});
+  } else if(filtered.length !== STUDENTS.length){
+    const avgF = filtered.length ? (filtered.reduce((a,s)=>a+s.rata,0)/filtered.length) : 0;
+    insights.unshift({icon:"🔍", type:"info", text:`Filter: <b>${filtered.length} siswa</b>, rata-rata <b>${filtered.length?avgF.toFixed(1):"-"}</b>.`});
+  }
+  return insights;
+}
+function renderInsights(){
+  const all = buildInsightList();
+  const shown = state.insightsExpanded ? all : all.slice(0,3);
+  document.getElementById("insightList").innerHTML = shown.map(i=>`
+    <div class="insight-card ${i.type}">
+      <span class="insight-icon">${i.icon}</span>
+      <span class="insight-text">${i.text}</span>
+    </div>`).join("");
+  const btn = document.getElementById("toggleInsights");
+  if(all.length>3){
+    btn.style.display="block";
+    btn.textContent = state.insightsExpanded ? "Sembunyikan ‹" : `Lihat semua insight (${all.length}) ›`;
+  } else {
+    btn.style.display="none";
+  }
+}
+
+/* =========================================================
+   6. CHART COLOR HELPERS
+========================================================= */
+function colorForValue(val, min, max){
+  const t = max>min ? (val-min)/(max-min) : 0.5;
+  const r = Math.round(220 - t*170);
+  const g = Math.round(240 - t*90);
+  const b = Math.round(220 - t*160);
+  return `rgb(${r},${g},${b})`;
+}
+function tealShade(rata, min, max){
+  const t = Math.max(0, Math.min(1, max>min ? (rata-min)/(max-min) : 0.5));
+  const c1 = [204,251,241], c2=[11,124,114];
+  const r = Math.round(c1[0]+(c2[0]-c1[0])*t);
+  const g = Math.round(c1[1]+(c2[1]-c1[1])*t);
+  const b = Math.round(c1[2]+(c2[2]-c1[2])*t);
+  return `rgb(${r},${g},${b})`;
+}
+function rankColor(s, lulusMin, lulusMax){
+  if(s.status==="Remedial") return COLOR.red;
+  if(s.ranking===1) return COLOR.gold;
+  if(s.ranking===2) return COLOR.silver;
+  if(s.ranking===3) return COLOR.bronze;
+  return tealShade(s.rata, lulusMin, lulusMax);
+}
+function rankLabel(s){
+  const medal = s.ranking===1?"🥇":s.ranking===2?"🥈":s.ranking===3?"🥉":`#${s.ranking}`;
+  return `${medal} ${s.nama}`;
+}
+
+/* =========================================================
+   7. CHARTS
+========================================================= */
+let charts = {};
+
+/* Draws the numeric value on top of each bar of the FIRST ("bar") dataset */
+const valueLabelPlugin = {
+  id:"valueLabelPlugin",
+  afterDatasetsDraw(chart){
+    const {ctx} = chart;
+    const meta = chart.getDatasetMeta(0);
+    const ds = chart.data.datasets[0];
+    if(!meta || !ds || (ds.type && ds.type!=="bar")) return;
+    ctx.save();
+    ctx.font = "700 9.5px Inter, sans-serif";
+    meta.data.forEach((bar,i)=>{
+      const val = ds.data[i];
+      if(val===undefined || val===null) return;
+      const label = String(typeof val === "number" ? (Number.isInteger(val)? val : val.toFixed(1)) : val);
+      const w = ctx.measureText(label).width;
+      if(chart.options.indexAxis==="y"){
+        ctx.textAlign="left"; ctx.textBaseline="middle";
+        ctx.fillStyle="rgba(255,255,255,0.85)";
+        ctx.fillRect(bar.x+2, bar.y-6, w+6, 12);
+        ctx.fillStyle="#152238";
+        ctx.fillText(label, bar.x+5, bar.y);
+      } else {
+        ctx.textAlign="center"; ctx.textBaseline="bottom";
+        ctx.fillStyle="rgba(255,255,255,0.85)";
+        ctx.fillRect(bar.x-w/2-3, bar.y-15, w+6, 13);
+        ctx.fillStyle="#152238";
+        ctx.fillText(label, bar.x, bar.y-3);
+      }
+    });
+    ctx.restore();
+  }
+};
+
+/* Draws a dashed horizontal reference line for the KKM (78) on a 0-100 vertical bar chart.
+   The label itself lives in the .kkm-note text below the chart, not on the canvas,
+   to avoid colliding with the per-bar value labels drawn by valueLabelPlugin. */
+const kkmLinePlugin = {
+  id:"kkmLinePlugin",
+  afterDatasetsDraw(chart){
+    if(chart.options.indexAxis==="y") return;
+    const {ctx, chartArea, scales} = chart;
+    if(!chartArea || !scales.y) return;
+    const y = scales.y.getPixelForValue(KKM);
+    ctx.save();
+    ctx.strokeStyle = COLOR.amber;
+    ctx.lineWidth = 1.3;
+    ctx.setLineDash([5,4]);
+    ctx.beginPath();
+    ctx.moveTo(chartArea.left, y);
+    ctx.lineTo(chartArea.right, y);
+    ctx.stroke();
+    ctx.restore();
+  }
+};
+
+function buildChartMapelAvg(){
+  const ctx = document.getElementById("chartMapelAvg");
+  charts.mapelAvg = new Chart(ctx,{
+    type:"bar",
+    data:{
+      labels: MAPEL.map(m=>MAPEL_LABEL[m]),
+datasets:[
+  {label:"Rata-rata", data:MAPEL.map(m=>+MAPEL_STATS[m].avg.toFixed(1)), backgroundColor:COLOR.teal, borderRadius:5, maxBarThickness:30, order:2},
+  {label:"Tertinggi", data:MAPEL.map(m=>MAPEL_STATS[m].max), type:"line", borderColor:"#2563EB", backgroundColor:"#2563EB", borderDash:[3,3], pointRadius:2, borderWidth:2, order:1, tension:0},
+  {label:"Terendah", data:MAPEL.map(m=>MAPEL_STATS[m].min), type:"line", borderColor:"#DC2626", backgroundColor:"#DC2626", borderDash:[3,3], pointRadius:2, borderWidth:2, order:1, tension:0}
+]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      layout:{padding:{top:16}},
+      scales:{ y:{min:0,max:100, grid:{color:COLOR.grid}, ticks:{font:{size:9}}}, x:{grid:{display:false}, ticks:{font:{size:9}}} },
+      plugins:{ legend:{position:"bottom", labels:{boxWidth:7, boxHeight:7, padding:8, font:{size:9}}} }
+    },
+    plugins:[valueLabelPlugin, kkmLinePlugin]
+  });
+}
+
+function buildChartPredikatPct(){
+  const ctx = document.getElementById("chartPredikatPct");
+  charts.predikatPct = new Chart(ctx,{
+    type:"bar",
+    data:{ labels:["A","B","C","D"], datasets:[
+      {label:"Lulus", data:[0,0,0,0], backgroundColor:COLOR.teal, borderRadius:4, maxBarThickness:22, stack:"s"},
+      {label:"Remedial", data:[0,0,0,0], backgroundColor:COLOR.red, borderRadius:4, maxBarThickness:22, stack:"s"}
+    ]},
+    options:{
+      indexAxis:"y", responsive:true, maintainAspectRatio:false,
+      scales:{ x:{stacked:true, min:0, max:100, grid:{color:COLOR.grid}, ticks:{font:{size:9}, callback:(v)=>v+"%"}},
+               y:{stacked:true, grid:{display:false}, ticks:{font:{size:10, weight:700}}} },
+      plugins:{ legend:{position:"bottom", labels:{boxWidth:7,boxHeight:7, padding:10, font:{size:9}}},
+        tooltip:{callbacks:{label:(c)=>`${c.dataset.label}: ${c.parsed.x}% dari kelas`}} }
+    }
+  });
+}
+function updateChartPredikatPct(filtered){
+  const total = filtered.length || 1;
+  const cats = ["A","B","C","D"];
+  const lulusPct = cats.map(p=> +(filtered.filter(s=>s.predikat===p&&s.status==="Lulus").length/total*100).toFixed(1));
+  const remPct = cats.map(p=> +(filtered.filter(s=>s.predikat===p&&s.status==="Remedial").length/total*100).toFixed(1));
+  charts.predikatPct.data.datasets[0].data = lulusPct;
+  charts.predikatPct.data.datasets[1].data = remPct;
+  charts.predikatPct.update();
+}
+
+function buildChartHistogram(){
+  const ctx = document.getElementById("chartHistogram");
+  charts.histogram = new Chart(ctx,{
+    type:"bar",
+    data:{ labels:["60–69","70–79","80–89","90–100"], datasets:[
+      {data:[0,0,0,0], backgroundColor:[COLOR.red,"#f59e0b",COLOR.teal,"#0b7c72"], borderRadius:5, maxBarThickness:44}
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      scales:{ y:{beginAtZero:true, grid:{color:COLOR.grid}, ticks:{font:{size:9}, stepSize:4}}, x:{grid:{display:false}, ticks:{font:{size:9}}} },
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:(c)=>`${c.parsed.y} siswa`}} }
+    }
+  });
+}
+function updateChartHistogram(filtered){
+  const bins=[0,0,0,0];
+  filtered.forEach(s=>{
+    if(s.rata<70) bins[0]++; else if(s.rata<80) bins[1]++; else if(s.rata<90) bins[2]++; else bins[3]++;
+  });
+  charts.histogram.data.datasets[0].data = bins;
+  charts.histogram.update();
+}
+
+function buildChartCorrelation(){
+  const ctx = document.getElementById("chartCorrelation");
+  charts.correlation = new Chart(ctx,{
+    type:"scatter",
+    data:{ datasets:[
+      {label:"Lulus", data:[], backgroundColor:COLOR.teal},
+      {label:"Remedial", data:[], backgroundColor:COLOR.red}
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      scales:{
+        x:{title:{display:true, text:"Matematika", font:{size:9}}, min:55, max:100, grid:{color:COLOR.grid}, ticks:{font:{size:9}}},
+        y:{title:{display:true, text:"B. Indonesia", font:{size:9}}, min:55, max:100, grid:{color:COLOR.grid}, ticks:{font:{size:9}}}
+      },
+      plugins:{
+        legend:{position:"bottom", labels:{boxWidth:7,boxHeight:7, padding:10, font:{size:9}}},
+        tooltip:{callbacks:{label:(c)=>{
+          const s = c.raw.student;
+          return `${s.nama}: MTK ${s.MTK}, B.Indo ${s.BIND}`;
+        }}}
+      }
+    }
+  });
+}
+function updateChartCorrelation(filtered){
+  const mk = (arr)=>arr.map(s=>({x:s.MTK, y:s.BIND, student:s}));
+  charts.correlation.data.datasets[0].data = mk(filtered.filter(s=>s.status==="Lulus"));
+  charts.correlation.data.datasets[1].data = mk(filtered.filter(s=>s.status==="Remedial"));
+  charts.correlation.update();
+}
+
+function buildChartRankingAll(){
+  const ctx = document.getElementById("chartRankingAll");
+  charts.rankingAll = new Chart(ctx,{
+    type:"bar",
+    data:{ labels:[], datasets:[{ data:[], backgroundColor:[], borderRadius:4, maxBarThickness:15 }]},
+    options:{
+      indexAxis:"y", responsive:true, maintainAspectRatio:false,
+      scales:{ x:{beginAtZero:true, max:460, grid:{color:COLOR.grid}, ticks:{font:{size:9}}}, y:{grid:{display:false}, ticks:{font:{size:9.5}}} },
+      plugins:{ legend:{display:false},
+        tooltip:{callbacks:{label:(c)=>{
+          const s = charts.rankingAll.data.datasets[0]._students[c.dataIndex];
+          return `Jumlah: ${s.jumlah} | Rata-rata: ${s.rata.toFixed(1)} | ${s.status} | Predikat ${s.predikat}`;
+        }}}
+      }
+    }
+  });
+}
+function updateChartRankingAll(filtered){
+  let sorted = filtered.slice().sort((a,b)=>a.ranking-b.ranking);
+  const isFiltering = !!state.search;
+  if(!isFiltering && !state.showAllRanking) sorted = sorted.slice(0,5);
+
+  const lulusVals = STUDENTS.filter(s=>s.status==="Lulus" && s.ranking>3).map(s=>s.rata);
+  const lMin = Math.min(...lulusVals), lMax = Math.max(...lulusVals);
+  charts.rankingAll.data.labels = sorted.map(rankLabel);
+  charts.rankingAll.data.datasets[0].data = sorted.map(s=>s.jumlah);
+  charts.rankingAll.data.datasets[0].backgroundColor = sorted.map(s=>rankColor(s,lMin,lMax));
+  charts.rankingAll.data.datasets[0]._students = sorted;
+  charts.rankingAll.update();
+
+  const titleEl = document.getElementById("rankingTitle");
+  const btnEl = document.getElementById("toggleRankBtn");
+  if(isFiltering){
+    titleEl.textContent = `Hasil Pencarian (${sorted.length})`;
+    btnEl.style.display = "none";
+  } else {
+    titleEl.textContent = state.showAllRanking ? "Peringkat Siswa (1–20)" : "Top 5 Siswa";
+    btnEl.style.display = "inline-block";
+    btnEl.textContent = state.showAllRanking ? "Tampilkan Top 5" : "Lihat Semua (20)";
+  }
+}
+
+function buildChartRadar(){
+  const ctx = document.getElementById("chartRadar");
+  charts.radar = new Chart(ctx,{
+    type:"radar",
+    data:{ labels:MAPEL.map(m=>MAPEL_LABEL[m]), datasets:[
+      {label:"Rata-rata Kelas", data:MAPEL.map(m=>MAPEL_STATS[m].avg), borderColor:COLOR.navyLight, backgroundColor:"rgba(51,72,118,0.12)", pointRadius:2, borderWidth:1.3},
+      {label:"Siswa Terpilih", data:[0,0,0,0,0], borderColor:COLOR.teal, backgroundColor:"rgba(13,148,136,0.28)", pointRadius:2.5, borderWidth:1.8}
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      scales:{ r:{ min:0, max:100, ticks:{stepSize:25, backdropColor:"transparent", font:{size:8}}, grid:{color:COLOR.grid}, pointLabels:{font:{size:9.5}} } },
+      plugins:{ legend:{position:"bottom", labels:{boxWidth:7,boxHeight:7, padding:10, font:{size:9}}} }
+    }
+  });
+}
+function updateChartRadar(){
+  const s = state.selectedStudent || DEFAULT_STUDENT;
+  charts.radar.data.datasets[1].label = s.nama;
+  charts.radar.data.datasets[1].data = MAPEL.map(m=>s[m]);
+  charts.radar.update();
+  document.getElementById("radarNote").textContent = state.search ? "hasil pencarian" : "default: Rank 1";
+}
+
+function buildChartStudentMapel(){
+  const ctx = document.getElementById("chartStudentMapel");
+  charts.studentMapel = new Chart(ctx,{
+    type:"bar",
+    data:{
+      labels: MAPEL.map(m=>MAPEL_LABEL[m]),
+      datasets:[{ label:"Nilai", data:[0,0,0,0,0], backgroundColor:[], borderRadius:5, maxBarThickness:30 }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      layout:{padding:{top:16}},
+      scales:{ y:{min:0,max:100, grid:{color:COLOR.grid}, ticks:{font:{size:9}}}, x:{grid:{display:false}, ticks:{font:{size:9}}} },
+      plugins:{ legend:{display:false},
+        tooltip:{callbacks:{label:(c)=>{
+          const m = MAPEL[c.dataIndex];
+          const diff = (c.parsed.y - MAPEL_STATS[m].avg).toFixed(1);
+          return c.parsed.y >= MAPEL_STATS[m].avg ? `${c.parsed.y} — ${Math.abs(diff)} poin di atas rata-rata kelas` : `${c.parsed.y} — ${Math.abs(diff)} poin di bawah rata-rata kelas`;
+        }}}
+      }
+    },
+    plugins:[valueLabelPlugin]
+  });
+}
+function updateChartStudentMapel(){
+  const s = state.selectedStudent || DEFAULT_STUDENT;
+  charts.studentMapel.data.datasets[0].data = MAPEL.map(m=>s[m]);
+  charts.studentMapel.data.datasets[0].backgroundColor = MAPEL.map(m=> s[m]>=MAPEL_STATS[m].avg ? COLOR.teal : COLOR.red);
+  charts.studentMapel.update();
+  document.getElementById("studentMapelNote").textContent = `${s.nama}${state.search? "" : " (default: Rank 1)"}`;
+}
+
+function renderHeatmap(filtered){
+  const filteredSet = new Set(filtered.map(s=>s.no));
+  let head = `<tr><th class="name-col">Siswa</th>` + MAPEL.map(m=>`<th>${m}</th>`).join("") + `<th>Rata²</th><th>Predikat</th></tr>`;
+  let arr = STUDENTS.slice();
+  if(state.heatmapSort==="ranking") arr.sort((a,b)=>a.ranking-b.ranking);
+  else if(state.heatmapSort==="nama") arr.sort((a,b)=>a.nama.localeCompare(b.nama));
+  else if(state.heatmapSort==="rata") arr.sort((a,b)=>b.rata-a.rata);
+
+  let rows = arr.map(s=>{
+    const dim = filteredSet.has(s.no) ? "" : "dimmed";
+    const cells = MAPEL.map(m=>{
+      const st = MAPEL_STATS[m];
+      const c = colorForValue(s[m], st.min, st.max);
+      return `<td class="val-cell" style="background:${c}">${s[m]}</td>`;
+    }).join("");
+    return `<tr class="${dim}"><td class="name-col">${s.nama}</td>${cells}<td class="rata-col">${s.rata.toFixed(1)}</td><td><span class="predikat-chip" style="background:${COLOR.predikat[s.predikat]}">${s.predikat}</span></td></tr>`;
+  }).join("");
+  document.getElementById("heatmapTable").innerHTML = head + rows;
+}
+
+/* =========================================================
+   8. MASTER UPDATE
+========================================================= */
+function updateAll(){
+  const filtered = getFiltered();
+  charts.mapelAvg.update();
+  updateChartPredikatPct(filtered);
+  updateChartHistogram(filtered);
+  updateChartCorrelation(filtered);
+  updateChartRankingAll(filtered);
+  updateChartRadar();
+  updateChartStudentMapel();
+  renderHeatmap(filtered);
+  renderInsights();
+
+  const tag = document.getElementById("activeTag");
+  if(state.search){
+    tag.textContent = `${filtered.length} siswa cocok`;
+  } else {
+    tag.textContent = "";
+  }
+}
+
+/* =========================================================
+   9. UI WIRING
+========================================================= */
+function setupUI(){
+  const searchInput = document.getElementById("searchInput");
+  const acList = document.getElementById("autocompleteList");
+
+  searchInput.addEventListener("input", ()=>{
+    state.search = searchInput.value.trim();
+    if(state.search.length>0){
+      const matches = STUDENTS.filter(s=>s.nama.toLowerCase().includes(state.search.toLowerCase()));
+      acList.innerHTML = matches.map(s=>`<div class="autocomplete-item" data-name="${s.nama}"><span>${s.nama}</span><span class="ac-rank">Rank ${s.ranking}</span></div>`).join("");
+      acList.classList.toggle("show", matches.length>0);
+      const exact = STUDENTS.find(s=>s.nama.toLowerCase()===state.search.toLowerCase());
+      state.selectedStudent = exact || DEFAULT_STUDENT;
+    } else {
+      acList.classList.remove("show");
+      state.selectedStudent = DEFAULT_STUDENT;
+    }
+    updateAll();
+  });
+
+  acList.addEventListener("click",(e)=>{
+    const item = e.target.closest(".autocomplete-item");
+    if(!item) return;
+    const name = item.dataset.name;
+    searchInput.value = name;
+    state.search = name;
+    state.selectedStudent = STUDENTS.find(s=>s.nama===name);
+    acList.classList.remove("show");
+    updateAll();
+  });
+
+  document.addEventListener("click",(e)=>{
+    if(!e.target.closest(".side-filter")) acList.classList.remove("show");
+  });
+
+  document.getElementById("resetBtn").addEventListener("click",()=>{
+    state.search=""; state.selectedStudent=DEFAULT_STUDENT;
+    searchInput.value="";
+    updateAll();
+  });
+
+  document.getElementById("toggleInsights").addEventListener("click",()=>{
+    state.insightsExpanded = !state.insightsExpanded;
+    renderInsights();
+  });
+
+  document.getElementById("heatmapSort").addEventListener("change",(e)=>{
+    state.heatmapSort = e.target.value;
+    renderHeatmap(getFiltered());
+  });
+
+  document.getElementById("toggleRankBtn").addEventListener("click",()=>{
+    state.showAllRanking = !state.showAllRanking;
+    updateChartRankingAll(getFiltered());
+  });
+}
+
+/* =========================================================
+   10. INIT
+========================================================= */
+function init(){
+  renderKPI();
+  setupUI();
+  buildChartMapelAvg();
+  buildChartPredikatPct();
+  buildChartHistogram();
+  buildChartCorrelation();
+  buildChartRankingAll();
+  buildChartRadar();
+  buildChartStudentMapel();
+  updateAll();
+
+  /* Safety net: some browsers report a transient/too-small container height on
+     first paint (before web fonts + flex layout fully settle), which can make
+     Chart.js cache a squashed canvas size. Force a resize once things settle. */
+  const resizeAll = ()=> Object.values(charts).forEach(c=> c && c.resize());
+  window.addEventListener("load", ()=> requestAnimationFrame(()=> requestAnimationFrame(resizeAll)));
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(resizeAll); }
+  window.addEventListener("resize", resizeAll);
+}
+init();
+</script>
+</body>
+</html>
