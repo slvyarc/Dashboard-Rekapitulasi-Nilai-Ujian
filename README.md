@@ -16,7 +16,7 @@
 
 ## 📌 About the Project
 
-Project ini berawal dari salah satu latihan pengolahan data menggunakan **Microsoft Excel** dari Brainance. Setelah menyelesaikan latihan tersebut, saya mengembangkan hasil pengolahan data menjadi sebuah **interactive dashboard** sebagai portfolio project.
+Project ini berawal dari salah satu latihan pengolahan data menggunakan **Microsoft Excel**. Setelah menyelesaikan latihan tersebut, saya mengembangkan hasil pengolahan data menjadi sebuah **interactive dashboard** sebagai portfolio project.
 
 Tujuan dashboard ini adalah menyajikan data nilai siswa dalam bentuk visual yang lebih informatif, sehingga performa kelas maupun masing-masing siswa dapat dianalisis dengan lebih mudah.
 
