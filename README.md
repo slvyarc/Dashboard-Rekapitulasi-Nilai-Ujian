@@ -4,7 +4,7 @@
 
 **Interactive Student Performance Dashboard**
 
-<video src="./dashboard-demo.gif" controls width="850"></video>
+![Demo](dashboard-demo.gif)
 
 <br>
 
