@@ -1,7 +1,8 @@
+<div align="center">
 # 📊 Dashboard Rekapitulasi Nilai Ujian
-
 ![Demo](dashboard-demo.gif)
-### 🌐 [Open Interactive Dashboard](https://slvyarc.github.io/Dashboard-Rekapitulasi-Nilai-Ujian/)
+🌐 [Open Interactive Dashboard](https://slvyarc.github.io/Dashboard-Rekapitulasi-Nilai-Ujian/)
+</div>
 
 ## 📌 About the Project
 
